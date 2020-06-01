@@ -2,8 +2,6 @@ const express = require('express');
 const router = new express.Router();
 const User = require('../models/user');
 const ExpressError = require('../expressError');
-const db = require('../db');
-const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { SECRET_KEY } = require('../config');
 
@@ -12,6 +10,22 @@ const { SECRET_KEY } = require('../config');
  * Make sure to update their last-login!
  *
  **/
+router.post('/login', async function (req, res, next) {
+  try {
+    const { username, password } = req.body;
+    // compare then sign
+    if (await User.authenticate(username, password)) {
+      const token = jwt.sign({ username }, SECRET_KEY);
+      await username.updateLoginTimestamp();
+
+      return res.json({ message: 'Logged in.', token });
+    } else {
+      throw new ExpressError('Invaild username/Password', 404);
+    }
+  } catch (error) {
+    return next(error);
+  }
+});
 
 /** POST /register - register user: registers, logs in, and returns token.
  *
@@ -22,7 +36,8 @@ const { SECRET_KEY } = require('../config');
 
 router.post('/register', async function (req, res, next) {
   try {
-    const user = await User.register(req.body);
+    const { username, password, first_name, last_name, phone } = req.body;
+    const user = await User.register(username, password, first_name, last_name, phone);
     const token = jwt.sign({ user }, SECRET_KEY);
     await user.updateLoginTimestamp();
     return res.json(token);
