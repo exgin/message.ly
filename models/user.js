@@ -4,7 +4,7 @@
 const db = require('../db');
 const ExpressError = require('../expressError');
 const bcrypt = require('bcrypt');
-const { BCRYPT_WORK_FACTOR } = require('../config');
+const { BCRYPT_WORK_FACTOR, SECRET_KEY } = require('../config');
 
 class User {
   constructor(username, password, first_name, last_name, phone) {
@@ -19,6 +19,7 @@ class User {
    */
 
   static async register(newUsername, newPassword, newFirst_name, newLast_name, newPhone) {
+    // debugger;
     const hashedPassword = await bcrypt.hash(newPassword, BCRYPT_WORK_FACTOR);
     const result = await db.query(
       `INSERT INTO users (
@@ -41,7 +42,12 @@ class User {
 
   /** Authenticate: is this username/password valid? Returns boolean. */
 
-  static async authenticate(username, password) {}
+  static async authenticate(username, password) {
+    const result = await db.query(`SELECT password FROM users WHERE username = $1`, [username]);
+    let user = result.rows[0];
+
+    return user && (await bcrypt.compare(password, this.password));
+  }
 
   /** Update last_login_at for user */
 
