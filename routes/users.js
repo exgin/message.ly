@@ -1,6 +1,7 @@
 const express = require('express');
 const router = new express.Router();
 const Users = require('../models/user');
+const { ensureLoggedIn, ensureCorrectUser } = require('../middleware/auth');
 // ROUTES
 
 /** GET / - get list of users.
