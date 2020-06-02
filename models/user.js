@@ -19,7 +19,6 @@ class User {
    */
 
   static async register(newUsername, newPassword, newFirst_name, newLast_name, newPhone) {
-    // debugger;
     const hashedPassword = await bcrypt.hash(newPassword, BCRYPT_WORK_FACTOR);
     const result = await db.query(
       `INSERT INTO users (
@@ -46,12 +45,12 @@ class User {
     const result = await db.query(`SELECT password FROM users WHERE username = $1`, [username]);
     let user = result.rows[0];
 
-    return user && (await bcrypt.compare(password, this.password));
+    return user && (await bcrypt.compare(password, user.password));
   }
 
   /** Update last_login_at for user */
 
-  async updateLoginTimestamp() {
+  static async updateLoginTimestamp() {
     await db.query(`UPDATE users SET last_login_at = current_timestamp WHERE username = $1 RETURNING username`, [this.username]);
   }
 
