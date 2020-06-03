@@ -68,7 +68,7 @@ class User {
    *          join_at,
    *          last_login_at } */
   static async get(username) {
-    const result = await db.query(`SELECT username, first_name, last_name, phone, join_at, last_login_at FROM users WHERE username = $1`, [username])
+    const result = await db.query(`SELECT username, first_name, last_name, phone, join_at, last_login_at FROM users WHERE username = $1`, [username]);
 
     return result.rows[0];
   }
@@ -89,8 +89,33 @@ class User {
    * where from_user is
    *   {id, first_name, last_name, phone}
    */
+  static async messagesTo(username) {
+    const result = await db.query(
+      `SELECT m.id, m.from_username, u.first_name, u.last_name, u.phone, m.body, m.sent_at, m.read_at
+        FROM messages AS m
+        JOIN users AS u ON m.to_username = u.username
+        WHERE to_username = $1`,
+      [username]
+    );
 
-  static async messagesTo(username) {}
+    let msg = results.rows;
+    if (!msg) {
+      throw new ExpressError(`No messages to ${username}`, 404);
+    }
+
+    return msg.map((m) => ({
+      id: m.id,
+      from_user: {
+        username: m.from_username,
+        first_name: m.first_name,
+        last_name: m.last_name,
+        phone: m.phone,
+      },
+      body: m.body,
+      sent_at: m.sent_at,
+      read_at: m.read_at,
+    }));
+  }
 }
 
 module.exports = User;
