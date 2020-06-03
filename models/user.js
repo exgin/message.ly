@@ -7,13 +7,6 @@ const bcrypt = require('bcrypt');
 const { BCRYPT_WORK_FACTOR, SECRET_KEY } = require('../config');
 
 class User {
-  constructor(username, password, first_name, last_name, phone) {
-    this.username = username;
-    this.password = password;
-    this.first_name = first_name;
-    this.last_name = last_name;
-    this.phone = phone;
-  }
   /** register new user -- returns
    *    {username, password, first_name, last_name, phone}
    */
@@ -47,8 +40,8 @@ class User {
   }
 
   /** Update last_login_at for user */
-  static async updateLoginTimestamp() {
-    await db.query(`UPDATE users SET last_login_at = current_timestamp WHERE username = $1 RETURNING username`, [this.username]);
+  static async updateLoginTimestamp(username) {
+    await db.query(`UPDATE users SET last_login_at = current_timestamp WHERE username = $1 RETURNING username`, [username]);
   }
 
   /** All: basic info on all users:

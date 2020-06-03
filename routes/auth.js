@@ -16,7 +16,7 @@ router.post('/login', async function (req, res, next) {
     // compare then sign
     if (await User.authenticate(username, password)) {
       const token = jwt.sign({ username }, SECRET_KEY);
-      User.updateLoginTimestamp();
+      User.updateLoginTimestamp(username);
       return res.json({ message: 'Logged in.', token });
     } else {
       throw new ExpressError('Invaild username/Password', 404);
@@ -39,7 +39,7 @@ router.post('/register', async function (req, res, next) {
     const user = await User.register(username, password, first_name, last_name, phone);
     const token = jwt.sign({ user }, SECRET_KEY);
     await user.updateLoginTimestamp();
-    return res.json({message: 'Account registered!', token});
+    return res.json({ message: 'Account registered!', token });
   } catch (error) {
     return next(error);
   }
