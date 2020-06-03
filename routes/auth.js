@@ -19,7 +19,7 @@ router.post('/login', async function (req, res, next) {
       User.updateLoginTimestamp(username);
       return res.json({ message: 'Logged in.', token });
     } else {
-      throw new ExpressError('Invaild username/Password', 404);
+      throw new ExpressError('Invaild username/Password', 400);
     }
   } catch (error) {
     return next(error);
@@ -38,7 +38,7 @@ router.post('/register', async function (req, res, next) {
     const { username, password, first_name, last_name, phone } = req.body;
     const user = await User.register(username, password, first_name, last_name, phone);
     const token = jwt.sign({ user }, SECRET_KEY);
-    await user.updateLoginTimestamp();
+    User.updateLoginTimestamp(username);
     return res.json({ message: 'Account registered!', token });
   } catch (error) {
     return next(error);

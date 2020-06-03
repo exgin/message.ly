@@ -26,9 +26,7 @@ class User {
       [newUsername, hashedPassword, newFirst_name, newLast_name, newPhone]
     );
 
-    const { username, first_name, last_name, phone } = result.rows[0];
-
-    return new User(username, first_name, last_name, phone);
+    return results.rows[0];
   }
 
   /** Authenticate: is this username/password valid? Returns boolean. */
@@ -41,7 +39,10 @@ class User {
 
   /** Update last_login_at for user */
   static async updateLoginTimestamp(username) {
-    await db.query(`UPDATE users SET last_login_at = current_timestamp WHERE username = $1 RETURNING username`, [username]);
+    const result = await db.query(`UPDATE users SET last_login_at = current_timestamp WHERE username = $1 RETURNING username`, [username]);
+    if (!result.rows[0]) {
+      throw new ExpressError(`Invalid: ${username}`, 404);
+    }
   }
 
   /** All: basic info on all users:
