@@ -9,7 +9,6 @@ class Message {
   /** register new message -- returns
    *    {id, from_username, to_username, body, sent_at}
    */
-
   static async create({ from_username, to_username, body }) {
     const result = await db.query(
       `INSERT INTO messages (
@@ -26,7 +25,6 @@ class Message {
   }
 
   /** Update read_at for message */
-
   static async markRead(id) {
     const result = await db.query(
       `UPDATE messages
@@ -50,7 +48,6 @@ class Message {
    * both to_user and from_user = {username, first_name, last_name, phone}
    *
    */
-
   static async get(id) {
     const result = await db.query(
       `SELECT m.id,

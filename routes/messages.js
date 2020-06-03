@@ -1,6 +1,8 @@
 const express = require('express');
 const router = new express.Router();
 const Message = require('../models/message');
+const {ensureLoggedIn} = require("../middleware/auth");
+const ExpressError = require("../expressError");
 // ROUTES
 
 /** GET /:id - get detail of message.
@@ -22,6 +24,16 @@ const Message = require('../models/message');
  *   {message: {id, from_username, to_username, body, sent_at}}
  *
  **/
+router.post('/', ensureLoggedIn, async function (req, res, next) {
+    try {
+        // unauthorzied error when sending messages?
+        const msg = await Message.create({from_username: req.user.username, to_username: req.body.to_username, body: req.body.body})
+        
+        return res.json({message: msg});
+    } catch (error) {
+        return next(error);
+    }
+});
 
 /** POST/:id/read - mark message as read:
  *

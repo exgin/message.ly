@@ -17,7 +17,6 @@ class User {
   /** register new user -- returns
    *    {username, password, first_name, last_name, phone}
    */
-
   static async register(newUsername, newPassword, newFirst_name, newLast_name, newPhone) {
     const hashedPassword = await bcrypt.hash(newPassword, BCRYPT_WORK_FACTOR);
     const result = await db.query(
@@ -40,7 +39,6 @@ class User {
   }
 
   /** Authenticate: is this username/password valid? Returns boolean. */
-
   static async authenticate(username, password) {
     const result = await db.query(`SELECT password FROM users WHERE username = $1`, [username]);
     let user = result.rows[0];
@@ -49,19 +47,16 @@ class User {
   }
 
   /** Update last_login_at for user */
-
   static async updateLoginTimestamp() {
     await db.query(`UPDATE users SET last_login_at = current_timestamp WHERE username = $1 RETURNING username`, [this.username]);
   }
 
   /** All: basic info on all users:
    * [{username, first_name, last_name, phone}, ...] */
-
   static async all() {
-    const results = await db.query(`SELECT username, first_name, last_name, phone FROM users WHERE username = $1`, [username]);
-    const users = results.rows.map((r) => new User(r.username, r.first_name, r.last_name, r.phone));
+    const results = await db.query(`SELECT username, first_name, last_name, phone FROM users`);
 
-    return users;
+    return results.rows;
   }
 
   /** Get: get user by username
@@ -72,8 +67,11 @@ class User {
    *          phone,
    *          join_at,
    *          last_login_at } */
+  static async get(username) {
+    const result = await db.query(`SELECT username, first_name, last_name, phone, join_at, last_login_at FROM users WHERE username = $1`, [username])
 
-  static async get(username) {}
+    return result.rows[0];
+  }
 
   /** Return messages from this user.
    *
@@ -82,7 +80,6 @@ class User {
    * where to_user is
    *   {username, first_name, last_name, phone}
    */
-
   static async messagesFrom(username) {}
 
   /** Return messages to this user.
